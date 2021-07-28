@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace BasicConcepts.Generics.Store.Middlewares.Logging
@@ -13,46 +15,34 @@ namespace BasicConcepts.Generics.Store.Middlewares.Logging
 		public override Task InitializeAsync(IStore store)
 		{
 			Store = store;
-			Log(nameof(InitializeAsync));
 			return Task.CompletedTask;
-		}
-
-		public override void AfterInitializeAllMiddlewares()
-		{
-			Log(nameof(AfterInitializeAllMiddlewares));
-		}
-
-		public override bool MayDispatchAction(object action)
-		{
-			Log(nameof(MayDispatchAction) + ObjectInfo(action));
-			return true;
-		}
-
-		public override void BeforeDispatch(object action)
-		{
-			Log(nameof(BeforeDispatch) + ObjectInfo(action));
 		}
 
 		public override void AfterDispatch(object action)
 		{
-			Log(nameof(AfterDispatch) + ObjectInfo(action));
-			Log("\t===========STATE AFTER DISPATCH===========");
+			Console.WriteLine();
+			Log($"After {ObjectInfo(action)}");
 			foreach (KeyValuePair<string, IFeature> feature in Store.Features)
 			{
-				string json = JsonConvert.SerializeObject(feature.Value, Formatting.Indented)
-					.Replace("\n", "\n\t");
-				Log("\r\n\t" + feature.Key + ": " + json);
+				PropertyInfo propertyInfo = feature.Value.GetState().GetType().GetProperty("IsBusyCount");
+				var count = (uint)propertyInfo.GetValue(feature.Value.GetState());
+				Console.WriteLine($"\t{feature.Key}.IsBusyCount is now {count}");
 			}
 			Console.WriteLine();
 		}
 
 		private string ObjectInfo(object obj)
-			=> ": " + obj.GetType().Name + " " + JsonConvert.SerializeObject(obj, Formatting.Indented);
+			=> ": " + ExpandTypeName(obj.GetType()) + " " + JsonConvert.SerializeObject(obj, Formatting.Indented);
 
 		private static void Log(string text)
 		{
-			Console.WriteLine($"Middleware: {text}");
+			Console.WriteLine($"Middleware > {text}");
 		}
+
+		private static string ExpandTypeName(Type t) =>
+			!t.IsGenericType || t.IsGenericTypeDefinition
+			? !t.IsGenericTypeDefinition ? t.Name : t.Name.Remove(t.Name.IndexOf('`'))
+			: $"{ExpandTypeName(t.GetGenericTypeDefinition())}<{string.Join(',', t.GetGenericArguments().Select(x => ExpandTypeName(x)))}>";
 	}
 
 }

@@ -11,7 +11,7 @@ namespace BasicConcepts.Generics.Store.GenericUseCase
 					isBusyCount: 0,
 					innerState: initialState))
 				.ScanType(typeof(Reducers<TState>))
-				.ScanType(typeof(Reducers<TState>));
+				.ScanType(typeof(Effects<TState>));
 			return options;
 		}
 	}

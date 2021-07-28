@@ -30,7 +30,6 @@ namespace BasicConcepts.Generics
 				Console.WriteLine("1: Make State1 busy");
 				Console.WriteLine("2: Make State2 busy");
 				Console.WriteLine("x: Exit");
-				Console.Write("> ");
 				input = Console.ReadLine();
 
 				switch (input.ToLowerInvariant())
