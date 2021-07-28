@@ -3,6 +3,7 @@
   <PropertyGroup>
 
     <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1</TargetFrameworks>
+    <LangVersion>9</LangVersion>
 
     <Product>Fluxor</Product>
     <Description>A zero boilerplate Redux/Flux framework for .NET</Description>

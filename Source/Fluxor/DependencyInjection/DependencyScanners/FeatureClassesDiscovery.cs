@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Fluxor.DependencyInjection.DependencyScanners
 {
@@ -11,6 +10,7 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 	{
 		internal static DiscoveredFeatureClass[] DiscoverFeatureClasses(
 			IServiceCollection serviceCollection,
+			FluxorOptions options,
 			IEnumerable<Type> allCandidateTypes,
 			IEnumerable<DiscoveredReducerClass> discoveredReducerClasses,
 			IEnumerable<DiscoveredReducerMethod> discoveredReducerMethods)
@@ -38,6 +38,10 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 						implementingType: x.ImplementingType,
 						stateType: x.GenericParameterTypes[0]
 						)
+					)
+					.Union(
+						options.RegisteredGenericFeatures
+						.Select(x => new DiscoveredFeatureClass(x))
 					)
 					.ToArray();
 
@@ -78,7 +82,10 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 			serviceCollection.AddScoped(discoveredFeatureClass.FeatureInterfaceGenericType, serviceProvider =>
 			{
 				// Create an instance of the implementing type
-				var featureInstance = (IFeature)serviceProvider.GetService(discoveredFeatureClass.ImplementingType);
+				IFeature featureInstance = 
+					discoveredFeatureClass.Instance is not null
+					? discoveredFeatureClass.Instance
+					: (IFeature)serviceProvider.GetService(discoveredFeatureClass.ImplementingType);
 
 				if (discoveredReducerClassesForStateType != null)
 				{

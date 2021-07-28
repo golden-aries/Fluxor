@@ -40,6 +40,7 @@ namespace Fluxor.DependencyInjection
 			DiscoveredFeatureClass[] discoveredFeatureClasses =
 				FeatureClassesDiscovery.DiscoverFeatureClasses(
 					serviceCollection: serviceCollection,
+					options: options,
 					allCandidateTypes: allNonAbstractCandidateTypes,
 					discoveredReducerClasses: discoveredReducerClasses,
 					discoveredReducerMethods: discoveredReducerMethods);
@@ -112,14 +113,12 @@ namespace Fluxor.DependencyInjection
 			serviceCollection.AddScoped(typeof(Store), serviceProvider =>
 			{
 				var store = new Store();
+
 				foreach (DiscoveredFeatureClass discoveredFeatureClass in discoveredFeatureClasses)
 				{
 					var feature = (IFeature)serviceProvider.GetService(discoveredFeatureClass.FeatureInterfaceGenericType);
 					store.AddFeature(feature);
 				}
-
-				foreach (IFeature registeredGenericFeature in options.RegisteredGenericFeatures)
-					store.AddFeature(registeredGenericFeature);
 
 				foreach (DiscoveredEffectClass discoveredEffectClass in discoveredEffectClasses)
 				{
