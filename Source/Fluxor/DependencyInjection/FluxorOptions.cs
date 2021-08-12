@@ -95,22 +95,17 @@ namespace Fluxor.DependencyInjection
 			return this;
 		}
 
-		public FluxorOptions ScanType(Type type)
+		public FluxorOptions ScanTypes(Type type, params Type[] additionalTypes)
 		{
 			if (type is null)
 				throw new ArgumentNullException(nameof(type));
 
-			if (AdditionalTypesToScan.IndexOf(type) == -1)
-				AdditionalTypesToScan.Add(type);
+			if (additionalTypes == null)
+				additionalTypes = Array.Empty<Type>();
+
+			AdditionalTypesToScan.AddRange(additionalTypes.Append(type));
 
 			return this;
 		}
-
-		public FluxorOptions ScanType<T>()
-		{
-			ScanType(typeof(T));
-			return this;
-		}
-
 	}
 }

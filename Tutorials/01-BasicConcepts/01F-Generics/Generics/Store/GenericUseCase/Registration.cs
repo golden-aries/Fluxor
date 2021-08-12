@@ -10,8 +10,7 @@ namespace BasicConcepts.Generics.Store.GenericUseCase
 				.RegisterGenericFeature(name, new GenericState<TState>(
 					isBusyCount: 0,
 					innerState: initialState))
-				.ScanType(typeof(Reducers<TState>))
-				.ScanType(typeof(Effects<TState>));
+				.ScanTypes(typeof(Reducers<TState>), typeof(Effects<TState>));
 			return options;
 		}
 	}
