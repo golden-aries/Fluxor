@@ -7,6 +7,7 @@ namespace Fluxor.DependencyInjection
 		public readonly Type FeatureInterfaceGenericType;
 		public readonly Type ImplementingType;
 		public readonly Type StateType;
+		public readonly 
 
 		public DiscoveredFeatureClass(Type implementingType, Type stateType)
 		{
