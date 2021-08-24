@@ -25,6 +25,17 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 					.GroupBy(x => x.StateType)
 					.ToDictionary(x => x.Key);
 
+			DiscoveredFeatureClass[] featuresDefinedByAttributes =
+				allCandidateTypes
+					.Select(t => new
+					{
+						Type = t,
+						FeatureAttribute = t.GetCustomAttribute<FeatureAttribute>()
+					})
+					.Where(x => x.FeatureAttribute != null)
+					.Select(x => new DiscoveredFeatureClass(x.Type, x.FeatureAttribute))
+					.ToArray();
+
 			DiscoveredFeatureClass[] discoveredFeatureClasses =
 				allCandidateTypes
 					.Select(t =>
@@ -39,7 +50,9 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 						stateType: x.GenericParameterTypes[0]
 						)
 					)
+					.Union(featuresDefinedByAttributes)
 					.ToArray();
+
 
 			foreach (DiscoveredFeatureClass discoveredFeatureClass in discoveredFeatureClasses)
 			{
@@ -72,13 +85,14 @@ namespace Fluxor.DependencyInjection.DependencyScanners
 				discoveredFeatureClass.ImplementingType.GetMethod(addReducerMethodName);
 
 			// Register the implementing type so we can get an instance from the service provider
-			serviceCollection.AddScoped(discoveredFeatureClass.ImplementingType);
+			if (!discoveredFeatureClass.HasInstance)
+				serviceCollection.AddScoped(discoveredFeatureClass.ImplementingType);
 
 			// Register a factory for creating instance of this feature type when requested via the generic IFeature interface
 			serviceCollection.AddScoped(discoveredFeatureClass.FeatureInterfaceGenericType, serviceProvider =>
 			{
-				// Create an instance of the implementing type
-				var featureInstance = (IFeature)serviceProvider.GetService(discoveredFeatureClass.ImplementingType);
+				// Get an instance of the implementing type
+				var featureInstance = discoveredFeatureClass.GetInstance(serviceProvider);
 
 				if (discoveredReducerClassesForStateType != null)
 				{

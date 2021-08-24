@@ -106,7 +106,7 @@ namespace Fluxor.DependencyInjection
 				var store = new Store();
 				foreach (DiscoveredFeatureClass discoveredFeatureClass in discoveredFeatureClasses)
 				{
-					var feature = (IFeature)serviceProvider.GetService(discoveredFeatureClass.FeatureInterfaceGenericType);
+					var feature = discoveredFeatureClass.GetInstance(serviceProvider);
 					store.AddFeature(feature);
 				}
 

@@ -1,18 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Fluxor
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 	public class FeatureAttribute : Attribute
 	{
-		public string Name { get; }
-		public string GetInitialStateMethodName { get; }
+		public string Name { get; set; }
+		public string GetInitialStateMethodName { get; set; }
 		public byte MaximumStateChangedNotificationsPerSecond { get; set; }
-
-		public FeatureAttribute(string name, string getInitialStateMethodName)
-		{
-			Name = name ?? throw new ArgumentNullException(nameof(name));
-			GetInitialStateMethodName = getInitialStateMethodName ?? throw new ArgumentNullException(nameof(getInitialStateMethodName));
-		}
 	}
 }

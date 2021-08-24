@@ -38,6 +38,7 @@ namespace Fluxor
 
 		private SpinLock SpinLock = new SpinLock();
 		private ThrottledInvoker TriggerStateChangedCallbacksThrottler;
+		private bool HasState;
 
 		/// <summary>
 		/// Creates a new instance
@@ -45,7 +46,6 @@ namespace Fluxor
 		public Feature()
 		{
 			TriggerStateChangedCallbacksThrottler = new ThrottledInvoker(TriggerStateChangedCallbacks);
-			State = GetInitialState();
 		}
 
 		private EventHandler untypedStateChanged;
@@ -84,7 +84,13 @@ namespace Fluxor
 		/// <see cref="IFeature{TState}.State"/>
 		public virtual TState State
 		{
-			get => _State;
+			get
+			{
+				if (!HasState)
+					_State = GetInitialState();
+				HasState = true;
+				return _State;
+			}
 			protected set
 			{
 				SpinLock.ExecuteLocked(() =>

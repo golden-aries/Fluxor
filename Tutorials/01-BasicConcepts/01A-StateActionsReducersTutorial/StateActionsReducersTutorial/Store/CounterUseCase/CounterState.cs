@@ -2,8 +2,9 @@
 
 namespace BasicConcepts.StateActionsReducersTutorial.Store.CounterUseCase
 {
-	[Feature(name: "Counter", getInitialStateMethodName: nameof(GetInitialState))]
-	public class CounterState
+	[Feature]
+	//[Feature(GetInitialStateMethodName = nameof(GetInitialState))]
+	public class CounterState: Temp<CounterState>
 	{
 		public int ClickCount { get; }
 
@@ -13,5 +14,12 @@ namespace BasicConcepts.StateActionsReducersTutorial.Store.CounterUseCase
 		{
 			ClickCount = clickCount;
 		}
+
+		public CounterState() => new CounterState(0);
+	}
+
+	public class Temp<T>
+	{
+		public string Hello { get; set; }
 	}
 }
